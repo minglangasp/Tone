@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>生物多样性指数计算器</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+  }
+  .tab {
+    display: none;
+  }
+  .active {
+    display: block;
+  }
+  table {
+    margin-top: 10px;
+  }
+  button {
+    margin-top: 10px;
+  }
+</style>
+<script>
+function switchTab(tabName) {
+    var tabs = document.getElementsByClassName("tab");
+    for (var i = 0; i < tabs.length; i++) {
+        tabs[i].style.display = "none";
+    }
+    document.getElementById(tabName).style.display = "block";
+}
+
+function addSpeciesRow(tableId) {
+    var table = document.getElementById(tableId);
+    var newRow = table.insertRow(-1);
+    var cell1 = newRow.insertCell(0);
+    var cell2 = newRow.insertCell(1);
+    var cell3 = newRow.insertCell(2);
+    var cell4 = newRow.insertCell(3);
+    cell1.innerHTML = "物种" + (table.rows.length - 1);
+    cell2.innerHTML = '<input type="number" name="N" value="0">';
+    cell3.innerHTML = '<input type="number" name="W" value="0">';
+    cell4.innerHTML = '<input type="number" name="F" value="0">';
+}
+
+function calculateIRI() {
+    var results = [];
+    var totalIRI = 0;
+
+    var table = document.getElementById("IRITable");
+    var rows = table.getElementsByTagName("tr");
+
+    for (var i = 1; i < rows.length; i++) {
+        var cells = rows[i].getElementsByTagName("td");
+        var N = parseFloat(cells[1].firstChild.value);
+        var W = parseFloat(cells[2].firstChild.value);
+        var F = parseFloat(cells[3].firstChild.value);
+        var IRI = (N + W) * F;
+        results.push([cells[0].textContent, N, W, F, IRI.toFixed(4)]);
+        totalIRI += IRI;
+    }
+
+    var resultTable = document.getElementById("resultTable");
+    resultTable.innerHTML = "";
+    results.forEach(function(row) {
+        var tr = document.createElement("tr");
+        tr.innerHTML = "<td>" + row[0] + "</td><td>" + row[1] + "</td><td>" + row[2] + "</td><td>" + row[3] + "</td><td>" + row[4] + "</td>";
+        resultTable.appendChild(tr);
+    });
+}
+
+window.onload = function() {
+    switchTab("shannonTab");
+};
+</script>
+</head>
+<body>
+<h2>生物多样性指数计算器</h2>
+<button onclick="switchTab('shannonTab')">香农指数</button>
+<button onclick="switchTab('IRITab')">相对重要性指数</button>
+
+<div id="shannonTab" class="tab">
+    <h3>香农指数计算</h3>
+    <p>公式说明：\( H' = -\sum_{i=1}^{s} p_i \ln(p_i) \)</p>
+    <table id="speciesTable" border="1">
+        <tr>
+            <th>物种名称</th>
+            <th>个体数</th>
+        </tr>
+        <tr>
+            <td>物种1</td>
+            <td><input type="number" name="count1" value="0"></td>
+        </tr>
+        <tr>
+            <td>物种2</td>
+            <td><input type="number" name="count2" value="0"></td>
+        </tr>
+        <!-- 添加更多物种 -->
+    </table>
+    <button onclick="calculateShannonIndex()">计算香农指数</button>
+    <p id="shannonResult"></p>
+</div>
+
+<div id="IRITab" class="tab">
+    <h3>相对重要性指数计算</h3>
+    <p>公式说明：\( IRI = (N + W) \times F \)</p>
+    <table id="IRITable" border="1">
+        <tr>
+            <th>物种名称</th>
+            <th>个体数 (N)</th>
+            <th>权重 (W)</th>
+            <th>丰富度 (F)</th>
+        </tr>
+        <tr>
+            <td>物种1</td>
+            <td><input type="number" name="N1" value="0"></td>
+            <td><input type="number" name="W1" value="0"></td>
+            <td><input type="number" name="F1" value="0"></td>
+        </tr>
+        <tr>
+            <td>物种2</td>
+            <td><input type="number" name="N2" value="0"></td>
+            <td><input type="number" name="W2" value="0"></td>
+            <td><input type="number" name="F2" value="0"></td>
+        </tr>
+        <!-- 添加更多物种 -->
+    </table>
+    <button onclick="addSpeciesRow('IRITable')">添加物种</button>
+    <button onclick="calculateIRI()">计算相对重要性指数</button>
+    <table id="resultTable" border="1">
+        <tr>
+            <th>种名</th>
+            <th>N</th>
+            <th>W</th>
+            <th>F</th>
+            <th>IRI</th>
+        </tr>
+    </table>
+</div>
+</body>
+</html>

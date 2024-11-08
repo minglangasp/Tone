@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>生物多样性指数计算</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f4f4f4;
+        }
+        .container {
+            max-width: 800px;
+            margin: auto;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+        }
+        .tab-button-container {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        .tab-button {
+            padding: 10px 20px;
+            margin: 0 10px;
+            cursor: pointer;
+            background-color: #ddd;
+            border: none;
+            border-radius: 5px;
+        }
+        .tab-button.active {
+            background-color: #007bff;
+            color: #fff;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        table {
+            width: 100%;
+            margin-top: 20px;
+            border-collapse: collapse;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+        th, td {
+            padding: 10px;
+            text-align: center;
+        }
+        input[type="number"], input[type="text"] {
+            padding: 8px;
+            width: 100%;
+            box-sizing: border-box; /* Prevents input from exceeding column width */
+            margin: 5px 0;
+            border: none; /* Remove the border */
+            background-color: #f9f9f9; /* Light background for input */
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #28a745;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            margin-top: 15px; /* Add margin between button and table */
+        }
+        button:hover {
+            background-color: #218838;
+        }
+        .delete-btn {
+            padding: 5px 10px;
+            background-color: #dc3545;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        .delete-btn:hover {
+            background-color: #c82333;
+        }
+        .formula {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #f1f1f1;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+        .table-output-container {
+            overflow-x: auto;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>生物多样性指数计算</h1>
+
+    <div class="tab-button-container">
+        <button class="tab-button active" onclick="showTab('shannon')">香农指数</button>
+        <button class="tab-button" onclick="showTab('iri')">生物多样性相对重要性指数</button>
+    </div>
+
+    <!-- 香农指数计算 -->
+    <div id="shannon" class="tab-content active">
+        <h2>香农指数计算</h2>
+        <p>请输入各物种的数量，计算香农指数。</p>
+        <table>
+            <thead>
+                <tr>
+                    <th>物种</th>
+                    <th>数量 (N)</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody id="shannon-table-body">
+                <tr>
+                    <td><input type="text" placeholder="物种名称" oninput="calculateShannon()" /></td>
+                    <td><input type="number" class="species-count" oninput="calculateShannon()" /></td>
+                    <td><button class="delete-btn" onclick="deleteRow(this)">删除</button></td>
+                </tr>
+            </tbody>
+        </table>
+        <button onclick="addRow('shannon')">添加物种</button>
+        <br><br>
+        <div id="shannon-result"></div>
+        <div class="formula">
+            <strong>公式说明：</strong>
+            <p>香农指数 H' = - Σ (pᵢ * ln(pᵢ))</p>
+            <p>其中，pᵢ是第i个物种的相对丰度，公式中的Σ是所有物种的总和。</p>
+        </div>
+    </div>
+
+    <!-- 生物多样性相对重要性指数 -->
+    <div id="iri" class="tab-content">
+        <h2>生物多样性相对重要性指数 (IRI) 计算</h2>
+        <p>请输入物种的数量、权重和频率，计算生物多样性相对重要性指数。</p>
+        <table>
+            <thead>
+                <tr>
+                    <th>物种</th>
+                    <th>数量 (N)</th>
+                    <th>权重 (W)</th>
+                    <th>频率 (F)</th>
+                    <th>IRI</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody id="iri-table-body">
+                <tr>
+                    <td><input type="text" placeholder="物种名称" oninput="calculateIRI()" /></td>
+                    <td><input type="number" class="iri-count" oninput="calculateIRI()" /></td>
+                    <td><input type="number" class="iri-weight" oninput="calculateIRI()" /></td>
+                    <td><input type="number" class="iri-frequency" oninput="calculateIRI()" /></td>
+                    <td><input type="text" class="iri-result" readonly /></td>
+                    <td><button class="delete-btn" onclick="deleteRow(this)">删除</button></td>
+                </tr>
+            </tbody>
+        </table>
+        <button onclick="addRow('iri')">添加物种</button>
+        <br><br>
+        <div class="table-output-container" id="iri-result-table"></div>
+        <div class="formula">
+            <strong>公式说明：</strong>
+            <p>相对重要性指数 IRI = (N + W) * F</p>
+            <p>其中，N是数量，W是权重，F是频率。</p>
+        </div>
+    </div>
+</div>
+
+<script>
+    function showTab(tabName) {
+        // Hide all tabs
+        document.querySelectorAll('.tab-content').forEach(tab => {
+            tab.classList.remove('active');
+        });
+        // Deactivate all tab buttons
+        document.querySelectorAll('.tab-button').forEach(button => {
+            button.classList.remove('active');
+        });
+        // Activate the selected tab
+        document.getElementById(tabName).classList.add('active');
+        // Activate the corresponding tab button
+        event.target.classList.add('active');
+    }
+
+    function addRow(tab) {
+        const tableBody = document.getElementById(tab + '-table-body');
+        const newRow = document.createElement('tr');
+        if (tab === 'shannon') {
+            newRow.innerHTML = `
+                <td><input type="text" placeholder="物种名称" oninput="calculateShannon()" /></td>
+                <td><input type="number" class="species-count" oninput="calculateShannon()" /></td>
+                <td><button class="delete-btn" onclick="deleteRow(this)">删除</button></td>
+            `;
+        } else if (tab === 'iri') {
+            newRow.innerHTML = `
+                <td><input type="text" placeholder="物种名称" oninput="calculateIRI()" /></td>
+                <td><input type="number" class="iri-count" oninput="calculateIRI()" /></td>
+                <td><input type="number" class="iri-weight" oninput="calculateIRI()" /></td>
+                <td><input type="number" class="iri-frequency" oninput="calculateIRI()" /></td>
+                <td><input type="text" class="iri-result" readonly /></td>
+                <td><button class="delete-btn" onclick="deleteRow(this)">删除</button></td>
+            `;
+        }
+        tableBody.appendChild(newRow);
+    }
+
+    function deleteRow(button) {
+        const row = button.closest('tr');
+        row.remove();
+        if (document.querySelectorAll('#shannon-table-body tr').length === 0) {
+            addRow('shannon');
+        }
+        if (document.querySelectorAll('#iri-table-body tr').length === 0) {
+            addRow('iri');
+        }
+    }
+
+    function calculateShannon() {
+        const counts = document.querySelectorAll('.species-count');
+        const total = Array.from(counts).reduce((sum, input) => sum + Number(input.value), 0);
+        let shannonIndex = 0;
+
+        counts.forEach(input => {
+            const count = Number(input.value);
+            if (count > 0) {
+                const proportion = count / total;
+                shannonIndex -= proportion * Math.log(proportion);
+            }
+        });
+
+        document.getElementById('shannon-result').innerHTML = `<h3>香农指数: ${shannonIndex.toFixed(4)}</h3>`;
+    }
+
+    function calculateIRI() {
+        const rows = document.querySelectorAll('#iri-table-body tr');
+        let resultsHtml = '<h3>IRI计算结果</h3>';
+        resultsHtml += `
+            <table>
+                <thead>
+                    <tr>
+                        <th>物种</th>
+                        <th>数量 (N)</th>
+                        <th>权重 (W)</th>
+                        <th>频率 (F)</th>
+                        <th>IRI</th>
+                    </tr>
+                </thead>
+                <tbody>
+        `;
+        rows.forEach(row => {
+            const name = row.children[0].children[0].value;
+            const N = Number(row.children[1].children[0].value);
+            const W = Number(row.children[2].children[0].value);
+            const F = Number(row.children[3].children[0].value);
+            const IRI = (N + W) * F;
+
+            row.children[4].children[0].value = IRI.toFixed(2);  // Set IRI value in the input
+            resultsHtml += `
+                <tr>
+                    <td>${name}</td>
+                    <td>${N}</td>
+                    <td>${W}</td>
+                    <td>${F}</td>
+                    <td>${IRI.toFixed(2)}</td>
+                </tr>
+            `;
+        });
+        resultsHtml += '</tbody></table>';
+        document.getElementById('iri-result-table').innerHTML = resultsHtml;
+    }
+
+    // Handle pasting data (support multi-row paste from Word or Excel)
+    document.querySelectorAll('tbody input').forEach(input => {
+        input.addEventListener('paste', (event) => {
+            const clipboardData = event.clipboardData.getData('text/plain');
+            const lines = clipboardData.split('\n');
+            const rows = lines.map(line => line.split('\t'));
+            if (rows.length > 1) {
+                const tableBody = event.target.closest('tbody');
+                rows.forEach(row => {
+                    const newRow = document.createElement('tr');
+                    row.forEach((cell, index) => {
+                        const inputElem = document.createElement('input');
+                        inputElem.value = cell;
+                        inputElem.type = index === 0 ? 'text' : 'number';
+                        newRow.appendChild(createTableCell(inputElem));
+                    });
+                    const deleteBtn = document.createElement('button');
+                    deleteBtn.textContent = '删除';
+                    deleteBtn.classList.add('delete-btn');
+                    deleteBtn.onclick = () => deleteRow(deleteBtn);
+                    newRow.appendChild(createTableCell(deleteBtn));
+                    tableBody.appendChild(newRow);
+                });
+            }
+        });
+    });
+
+    function createTableCell(input) {
+        const td = document.createElement('td');
+        td.appendChild(input);
+        return td;
+    }
+</script>
+
+</body>
+</html>
